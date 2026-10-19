@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우리 동네 병원 찾기</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="#" class="brand">
+      <span class="brand-icon">✚</span>
+      <span>케어파인더</span>
+    </a>
+    <button id="settingButton" class="outline-button" type="button">⚙ 인증키 설정</button>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <p class="eyebrow">HIRA HOSPITAL INFORMATION</p>
+      <h1>우리 동네 병원을<br /><strong>검색해보세요.</strong></h1>
+      <p>건강보험심사평가원 병원정보서비스 데이터를 조회합니다.</p>
+    </section>
+
+    <section class="search-card">
+      <div class="notice">
+        <span class="notice-icon">ⓘ</span>
+        <div>
+          <strong>시·도만 선택한 뒤 먼저 검색해보세요.</strong>
+          <p>시군구 코드, 병원 이름, 병원 종류는 처음에는 비워두는 것이 좋습니다.</p>
+        </div>
+      </div>
+
+      <div class="filter-grid">
+        <label>
+          <span>시·도 <b>*</b></span>
+          <select id="sidoFilter">
+            <option value="110000">서울특별시</option>
+            <option value="260000">부산광역시</option>
+            <option value="270000">대구광역시</option>
+            <option value="280000">인천광역시</option>
+            <option value="290000">광주광역시</option>
+            <option value="300000">대전광역시</option>
+            <option value="310000">울산광역시</option>
+            <option value="361100">세종특별자치시</option>
+            <option value="410000">경기도</option>
+            <option value="420000">강원특별자치도</option>
+            <option value="430000">충청북도</option>
+            <option value="440000">충청남도</option>
+            <option value="450000">전북특별자치도</option>
+            <option value="460000">전라남도</option>
+            <option value="470000">경상북도</option>
+            <option value="480000">경상남도</option>
+            <option value="500000">제주특별자치도</option>
+          </select>
+        </label>
+
+        <label>
+          <span>시군구 코드 <em>(선택)</em></span>
+          <input id="sgguFilter" type="text" inputmode="numeric" placeholder="모르면 비워두세요" />
+        </label>
+
+        <label>
+          <span>병원 이름 <em>(선택)</em></span>
+          <input id="hospitalNameFilter" type="text" placeholder="예: 서울병원" />
+        </label>
+
+        <label>
+          <span>병원 종류 <em>(선택)</em></span>
+          <select id="hospitalTypeFilter">
+            <option value="">전체 병원 종류</option>
+            <option value="01">상급종합병원</option>
+            <option value="11">종합병원</option>
+            <option value="21">병원</option>
+            <option value="31">의원</option>
+            <option value="41">치과병원</option>
+            <option value="51">치과의원</option>
+            <option value="71">보건소</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="button-row">
+        <button id="resetFilterButton" class="secondary-button" type="button">조건 초기화</button>
+        <button id="checkButton" class="secondary-button" type="button">API 연결 확인</button>
+        <button id="searchButton" class="primary-button" type="button">🔍 지역 병원 검색하기</button>
+      </div>
+    </section>
+
+    <section class="result-section">
+      <div class="result-header">
+        <div>
+          <p class="eyebrow">SEARCH RESULT</p>
+          <h2 id="resultTitle">지역을 선택하고 검색해보세요</h2>
+        </div>
+        <span id="resultCount" class="count-badge">0곳</span>
+      </div>
+
+      <div id="messageBox" class="message-box">
+        <strong>검색 안내</strong>
+        <p>인증키를 저장한 뒤 지역 병원 검색하기 버튼을 눌러주세요.</p>
+      </div>
+
+      <div id="hospitalList" class="hospital-list"></div>
+    </section>
+  </main>
+
+  <div id="settingModal" class="modal hidden">
+    <div id="modalBackdrop" class="modal-backdrop"></div>
+
+    <section class="modal-content" role="dialog" aria-modal="true" aria-label="인증키 설정">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">PUBLIC DATA API</p>
+          <h2>인증키 설정</h2>
+        </div>
+        <button id="closeSettingButton" class="close-button" type="button" aria-label="닫기">×</button>
+      </div>
+
+      <div class="guide-box">
+        <strong>입력할 값</strong>
+        <p>공공데이터포털의 <b>일반 인증키(Decoding)</b>를 입력하세요.</p>
+        <p>인증키는 다른 사람에게 공유하지 마세요.</p>
+      </div>
+
+      <form id="settingForm">
+        <label>
+          <span>일반 인증키(Decoding)</span>
+          <input id="apiKeyInput" type="password" autocomplete="off" placeholder="Decoding 인증키 붙여넣기" required />
+        </label>
+
+        <div class="modal-actions">
+          <button id="deleteKeyButton" class="secondary-button" type="button">키 삭제</button>
+          <button class="primary-button save-button" type="submit">저장하기</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <template id="hospitalTemplate">
+    <article class="hospital-card">
+      <div class="name-line">
+        <h3 class="hospital-name"></h3>
+        <span class="hospital-type"></span>
+      </div>
+
+      <p class="hospital-address"></p>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span>전화번호</span>
+          <strong class="hospital-phone"></strong>
+        </div>
+        <div class="info-item">
+          <span>좌표 정보</span>
+          <strong class="location-info"></strong>
+        </div>
+      </div>
+
+      <p class="data-note">
+        현재 사용 중인 병원 기본정보 API는 병상 수와 진료과목을 제공하지 않을 수 있습니다.
+      </p>
+
+      <div class="card-actions">
+        <a class="map-link" target="_blank" rel="noopener noreferrer">지도에서 보기 ↗</a>
+        <a class="call-link">전화하기</a>
+      </div>
+    </article>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
